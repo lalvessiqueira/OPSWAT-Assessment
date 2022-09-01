@@ -28,25 +28,15 @@ SAMPLE INPUT COMMAND:
 SAMPLE OUTPUT:
 
     filename: samplefile.txt
-  
     overall_status: Clean
-  
     engine: Ahnlab
-  
     threat_found: SomeBadMalwareWeFound
-  
     scan_result: 1
-  
     def_time: 2017-12-05T13:54:00.000Z
-  
     engine: Cyren
-  
     threat_found: Clean
-  
     scan_result: 0
-  
     def_time: 2017-12-05T17:43:00.000Z
-  
     <repeats for each engine>
   
 
