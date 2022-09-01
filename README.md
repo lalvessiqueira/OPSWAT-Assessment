@@ -23,31 +23,31 @@ You can show any errors to the standard error and exit the application.
 
 SAMPLE INPUT COMMAND:
 
-  upload_file samplefile.txt
+    upload_file samplefile.txt
   
 SAMPLE OUTPUT:
 
-  filename: samplefile.txt
+    filename: samplefile.txt
   
-  overall_status: Clean
+    overall_status: Clean
   
-  engine: Ahnlab
+    engine: Ahnlab
   
-  threat_found: SomeBadMalwareWeFound
+    threat_found: SomeBadMalwareWeFound
   
-  scan_result: 1
+    scan_result: 1
   
-  def_time: 2017-12-05T13:54:00.000Z
+    def_time: 2017-12-05T13:54:00.000Z
   
-  engine: Cyren
+    engine: Cyren
   
-  threat_found: Clean
+    threat_found: Clean
   
-  scan_result: 0
+    scan_result: 0
   
-  def_time: 2017-12-05T17:43:00.000Z
+    def_time: 2017-12-05T17:43:00.000Z
   
-  <repeats for each engine>
+    <repeats for each engine>
   
 
 What you will need/helpful hints
