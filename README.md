@@ -22,19 +22,33 @@ It is not necessary to account for every idiosyncrocy of the API.
 You can show any errors to the standard error and exit the application.
 
 SAMPLE INPUT COMMAND:
+
   upload_file samplefile.txt
+  
 SAMPLE OUTPUT:
+
   filename: samplefile.txt
+  
   overall_status: Clean
+  
   engine: Ahnlab
+  
   threat_found: SomeBadMalwareWeFound
+  
   scan_result: 1
+  
   def_time: 2017-12-05T13:54:00.000Z
+  
   engine: Cyren
+  
   threat_found: Clean
+  
   scan_result: 0
+  
   def_time: 2017-12-05T17:43:00.000Z
+  
   <repeats for each engine>
+  
 
 What you will need/helpful hints
 =================================================================================
