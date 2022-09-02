@@ -77,12 +77,13 @@ def pull_result(data_id):
 
 # send in the json_response
 def check_results(data_id):
-    progress = pull_result(data_id)
+    json_response = pull_result(data_id)
     # maybe have to change 100 into integer
-    while progress["scan_results"]["progress_percentage"] != 100:
-        progress = pull_result(data_id)
+    while json_response["scan_results"]["progress_percentage"] != 100:
+        print(json_response["scan_results"]["progress_percentage"])
+        json_response = pull_result(data_id)
     # once it is 100, then we can call display results
-    display_result(progress["scan_results"])
+    display_result(json_response)
 
 
 '''
@@ -96,13 +97,19 @@ Cloud, the 'No information available' badge is displayed.
 '''
 
 
-def display_result(scan_results):
-    print("filename: samplefile.txt"
-          "overall_status: Clean")
-    print("engine: Ahnlab & Cyren"
-          "threat_found: SomeBadMalwareWeFound"
-          "scan_result: 1"
-          "def_time: 2017-12-05T13:54:00.000Z")
+def display_result(response):
+    print("filename: " + response["file_info"]["display_name"])
+    print("overall_status: Clean")
+    print_engines("AhnLab", response)
+    print_engines("Cyren", response)
+
+
+def print_engines(engine, response):
+    print("engine:", engine)
+    threat = response["scan_results"]["scan_details"][engine]["threat_found"]
+    print("threat_found:", 'Clean' if threat == '' else threat)
+    print("scan_result:", response["scan_results"]["scan_details"][engine]["scan_result_i"])
+    print("def_time:", response["scan_results"]["scan_details"][engine]["def_time"])
 
 
 def demo():
@@ -126,9 +133,8 @@ def file_scanner(file):
     # 3. If results are found, skip to step 6
     if hash_response.status_code == 200:
         # 6. Display results in format below (SAMPLE OUTPUT)
-        print('Success!')
         hash_lookup_json = json.loads(hash_response.text)
-        display_result(hash_lookup_json["scan_results"])
+        display_result(hash_lookup_json)
 
     # 4. If results are not found
     elif hash_response.status_code == 404:
