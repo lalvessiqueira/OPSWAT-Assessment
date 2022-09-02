@@ -26,7 +26,7 @@ def hash_calculation(filename):
             if not data:
                 break
             sha1.update(data)
-    print("SHA1: {0}".format(sha1.hexdigest()))
+    # print("SHA1: {0}".format(sha1.hexdigest()))
     return format(sha1.hexdigest())
 
 
@@ -39,24 +39,31 @@ def hash_lookup(hash):
     # we can get the boolean to see if it was found or not
     # return boolean
     # json_response = json.loads(response.text)
-    return response.status_code
+    # print(response.status_code)
+    return response
 
 
 # if the results are not found, upload the file and receive a data_id
-def upload_file(filepath, filename):
+def upload_file(filepath):
     url = "https://api.metadefender.com/v4/file"
+    payload = {}
+    files = [('someFile', (filepath, open(filepath, 'rb')))]
     headers = {
-        "apikey": APIKEY,
-        "Content-Type": "multipart/form-data",
-        "filename": filename
+        'apikey': APIKEY
     }
-    payload = filepath
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = requests.request("POST", url, headers=headers, data=payload, files=files)
+
     print(response.text)
+    if response.status_code == 200:
+        print("file uploaded successfully")
+        json_response = json.loads(response.text)
+        return json_response["data_id"]
+    else:
+        sys.exit("ERROR: " + str(response.status_code) + " STATUS")
     # get the data_id
 
 
-# repeated pull result until percentage is 100
+# repeatedly pull result until percentage is 100
 def pull_result(data_id):
     url = "https://api.metadefender.com/v4/file/" + data_id
     headers = {
@@ -65,11 +72,28 @@ def pull_result(data_id):
     }
     response = requests.request("GET", url, headers=headers)
     json_response = json.loads(response.text)
-    print(json_response)
+    return json_response
 
-    progress = json_response["scan_results"]["progress_percentage"]
-    if progress == "100":
-        display_result(json_response["scan_results"])
+
+# send in the json_response
+def check_results(data_id):
+    progress = pull_result(data_id)
+    # maybe have to change 100 into integer
+    while progress["scan_results"]["progress_percentage"] != 100:
+        progress = pull_result(data_id)
+    # once it is 100, then we can call display results
+    display_result(progress["scan_results"])
+
+
+'''
+Check for the file badge
+If the hash was scanned by MetaDefender Cloud and there was no 
+threat detected, the 'No threat detected' badge will be 
+returned (see a preview below in the 'Response Body' section). 
+If the hash was detected as infected, the 'Threat detected' 
+badge will be returned. If the hash was never scanned by MetaDefender 
+Cloud, the 'No information available' badge is displayed.
+'''
 
 
 def display_result(scan_results):
@@ -79,6 +103,7 @@ def display_result(scan_results):
           "threat_found: SomeBadMalwareWeFound"
           "scan_result: 1"
           "def_time: 2017-12-05T13:54:00.000Z")
+
 
 def demo():
     url = "https://api.metadefender.com/v4/apikey/"
@@ -90,11 +115,35 @@ def demo():
     print(y['max_file_download'])
 
 
+def file_scanner(file):
+    # 1. Calculate the hash of a given file (i.e. samplefile.txt)
+    hash_value = hash_calculation(file)
+
+    # 2. Perform a hash lookup against metadefender.opswat.com and see if
+    # there are previously cached results for the file
+    hash_response = hash_lookup(hash_value)
+
+    # 3. If results are found, skip to step 6
+    if hash_response.status_code == 200:
+        # 6. Display results in format below (SAMPLE OUTPUT)
+        print('Success!')
+        hash_lookup_json = json.loads(hash_response.text)
+        display_result(hash_lookup_json["scan_results"])
+
+    # 4. If results are not found
+    elif hash_response.status_code == 404:
+        # 4.1 Upload the file and receive a "data_id"
+        data_id = upload_file(file)
+        # 5. Repeatedly pull on the "data_id" to retrieve results
+        check_results(data_id)
+
+
 if __name__ == '__main__':
     # demo()
-    filepath = "/Users/leticiasiqueira/Downloads/leticiasiqueiracv.pdf"
-    hash_value = hash_calculation(filepath)
-    code = hash_lookup(hash_value)
-    print(code)
+    # filepath = "/Users/leticiasiqueira/Downloads/leticiasiqueiracv.pdf"
+    # code = hash_lookup(hash_value)
+    # print(code)
     # command line arguments
-    print(sys.argv)
+    # print(sys.argv)
+    file = sys.argv[1]
+    file_scanner(file)

@@ -73,3 +73,5 @@ We will be testing your project on a clean Ubuntu 20.04 VM or latest Visual
 Studio 2022 Windows machine.
 You can use whatever language or 3rd party library you want, but it should build
 and execute out of the box on the VM, so test accordingly.
+
+    TODO: Check for all 404 or 200 responses in each method!
