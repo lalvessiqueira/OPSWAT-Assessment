@@ -1,0 +1,8 @@
+Generate a simple program to scan a file against our metadefender.opswat.com API.
+OPSWAT online product documentation contains details of our publicly available API
+along with sample code that shows how to scan a file. Since it is costly to multi-scan
+a file, we would like you to implement a hash lookup prior to deciding to upload a file,
+then retrieve results and display them. Please read through the documentation and
+sample code found at https://docs.opswat.com/mdcloud/integrations/public-apis &
+https://docs.opswat.com/mdcloud/metadefender-cloud-api-v4/ref to perform the following logic:
+

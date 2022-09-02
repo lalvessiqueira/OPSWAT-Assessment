@@ -13,7 +13,6 @@ overall_status: Clean
 '''
 
 
-# 276808942CB3A179B05AC9AA2B0D447A72E70A33
 # Calculate the hash of a given file (i.e. samplefile.txt)
 def hash_calculation(filename):
     # cite of code: https://www.tutorialspoint.com/How-to-Find-Hash-of-File-using-Python
@@ -36,10 +35,7 @@ def hash_lookup(hash):
     headers = {"apikey": APIKEY}
     response = requests.request("GET", url, headers=headers)
     # print(response.status_code)
-    # we can get the boolean to see if it was found or not
-    # return boolean
-    # json_response = json.loads(response.text)
-    # print(response.status_code)
+    json_response = json.loads(response.text)
     return response
 
 
@@ -53,7 +49,7 @@ def upload_file(filepath):
     }
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
 
-    print(response.text)
+    # print(response.text)
     if response.status_code == 200:
         print("file uploaded successfully")
         json_response = json.loads(response.text)
@@ -86,17 +82,6 @@ def check_results(data_id):
     display_result(json_response)
 
 
-'''
-Check for the file badge
-If the hash was scanned by MetaDefender Cloud and there was no 
-threat detected, the 'No threat detected' badge will be 
-returned (see a preview below in the 'Response Body' section). 
-If the hash was detected as infected, the 'Threat detected' 
-badge will be returned. If the hash was never scanned by MetaDefender 
-Cloud, the 'No information available' badge is displayed.
-'''
-
-
 def display_result(response):
     print("filename: " + response["file_info"]["display_name"])
     print("overall_status: Clean")
@@ -106,20 +91,13 @@ def display_result(response):
 
 def print_engines(engine, response):
     print("engine:", engine)
-    threat = response["scan_results"]["scan_details"][engine]["threat_found"]
-    print("threat_found:", 'Clean' if threat == '' else threat)
-    print("scan_result:", response["scan_results"]["scan_details"][engine]["scan_result_i"])
-    print("def_time:", response["scan_results"]["scan_details"][engine]["def_time"])
-
-
-def demo():
-    url = "https://api.metadefender.com/v4/apikey/"
-    headers = {"apikey": APIKEY}
-    response = requests.request("GET", url, headers=headers)
-    # parse response:
-    y = json.loads(response.text)
-    # the result is a Python dictionary:
-    print(y['max_file_download'])
+    if response["scan_results"]["scan_details"] != {}:
+        threat = response["scan_results"]["scan_details"][engine]["threat_found"]
+        print("threat_found:", 'Clean' if threat == '' else threat)
+        print("scan_result:", response["scan_results"]["scan_details"][engine]["scan_result_i"])
+        print("def_time:", response["scan_results"]["scan_details"][engine]["def_time"])
+    else:
+        sys.exit("No scan details for this file")
 
 
 def file_scanner(file):
@@ -145,11 +123,7 @@ def file_scanner(file):
 
 
 if __name__ == '__main__':
-    # demo()
-    # filepath = "/Users/leticiasiqueira/Downloads/leticiasiqueiracv.pdf"
-    # code = hash_lookup(hash_value)
-    # print(code)
-    # command line arguments
-    # print(sys.argv)
+    if len(sys.argv) != 2:
+        sys.exit("Command: python filescanner.py [filename_to_scan]")
     file = sys.argv[1]
     file_scanner(file)
