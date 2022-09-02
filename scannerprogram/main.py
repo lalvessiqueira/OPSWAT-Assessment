@@ -66,11 +66,19 @@ def pull_result(data_id):
     response = requests.request("GET", url, headers=headers)
     json_response = json.loads(response.text)
     print(json_response)
-    # return the process percentage until its 100
-    # scan_results.progress_percentage
-    return json_response["scan_results"]["progress_percentage"]
+
+    progress = json_response["scan_results"]["progress_percentage"]
+    if progress == "100":
+        display_result(json_response["scan_results"])
 
 
+def display_result(scan_results):
+    print("filename: samplefile.txt"
+          "overall_status: Clean")
+    print("engine: Ahnlab & Cyren"
+          "threat_found: SomeBadMalwareWeFound"
+          "scan_result: 1"
+          "def_time: 2017-12-05T13:54:00.000Z")
 
 def demo():
     url = "https://api.metadefender.com/v4/apikey/"
@@ -88,3 +96,5 @@ if __name__ == '__main__':
     hash_value = hash_calculation(filepath)
     code = hash_lookup(hash_value)
     print(code)
+    # command line arguments
+    print(sys.argv)
