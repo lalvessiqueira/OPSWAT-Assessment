@@ -3,6 +3,7 @@ import json
 import sys
 import hashlib
 
+APIKEY = "aca0515a2b6b47ada82b13dca40ee51e"
 '''
 SAMPLE INPUT COMMAND:
 upload_file samplefile.txt
@@ -26,11 +27,54 @@ def hash_calculation(filename):
                 break
             sha1.update(data)
     print("SHA1: {0}".format(sha1.hexdigest()))
+    return format(sha1.hexdigest())
+
+
+def hash_lookup(hash):
+    url = "https://api.metadefender.com/v4/hash/" + hash
+    # print("This is the url: " + url)
+    headers = {"apikey": APIKEY}
+    response = requests.request("GET", url, headers=headers)
+    # print(response.status_code)
+    # we can get the boolean to see if it was found or not
+    # return boolean
+    # json_response = json.loads(response.text)
+    return response.status_code
+
+
+# if the results are not found, upload the file and receive a data_id
+def upload_file(filepath, filename):
+    url = "https://api.metadefender.com/v4/file"
+    headers = {
+        "apikey": APIKEY,
+        "Content-Type": "multipart/form-data",
+        "filename": filename
+    }
+    payload = filepath
+    response = requests.request("POST", url, headers=headers, data=payload)
+    print(response.text)
+    # get the data_id
+
+
+# repeated pull result until percentage is 100
+def pull_result(data_id):
+    url = "https://api.metadefender.com/v4/file/" + data_id
+    headers = {
+        "apikey": APIKEY,
+        "x-file-metadata": ""
+    }
+    response = requests.request("GET", url, headers=headers)
+    json_response = json.loads(response.text)
+    print(json_response)
+    # return the process percentage until its 100
+    # scan_results.progress_percentage
+    return json_response["scan_results"]["progress_percentage"]
+
 
 
 def demo():
     url = "https://api.metadefender.com/v4/apikey/"
-    headers = {"apikey": "aca0515a2b6b47ada82b13dca40ee51e"}
+    headers = {"apikey": APIKEY}
     response = requests.request("GET", url, headers=headers)
     # parse response:
     y = json.loads(response.text)
@@ -39,5 +83,8 @@ def demo():
 
 
 if __name__ == '__main__':
-    demo()
-    hash_calculation("/Users/leticiasiqueira/Downloads/leticiasiqueiracv.pdf")
+    # demo()
+    filepath = "/Users/leticiasiqueira/Downloads/leticiasiqueiracv.pdf"
+    hash_value = hash_calculation(filepath)
+    code = hash_lookup(hash_value)
+    print(code)
