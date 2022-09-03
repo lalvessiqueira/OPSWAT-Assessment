@@ -3,14 +3,18 @@ import json
 import sys
 import hashlib
 
-APIKEY = "aca0515a2b6b47ada82b13dca40ee51e"
-'''
-SAMPLE INPUT COMMAND:
-upload_file samplefile.txt
-SAMPLE OUTPUT:
-filename: samplefile.txt
-overall_status: Clean
-'''
+APIKEY = sys.argv[1]
+
+
+def api_check():
+    url = "https://api.metadefender.com/v4/apikey/"
+    headers = {
+        "apikey": APIKEY
+    }
+    response = requests.request("GET", url, headers=headers)
+    json_response = json.loads(response.text)
+    if response.status_code != 200:
+        sys.exit(json_response["error"]["messages"])
 
 
 # Calculate the hash of a given file (i.e. samplefile.txt)
@@ -29,13 +33,14 @@ def hash_calculation(filename):
     return format(sha1.hexdigest())
 
 
+# this response will be checked in file_scanner
 def hash_lookup(hash):
     url = "https://api.metadefender.com/v4/hash/" + hash
     # print("This is the url: " + url)
     headers = {"apikey": APIKEY}
     response = requests.request("GET", url, headers=headers)
     # print(response.status_code)
-    json_response = json.loads(response.text)
+    # json_response = json.loads(response.text)
     return response
 
 
@@ -48,15 +53,15 @@ def upload_file(filepath):
         'apikey': APIKEY
     }
     response = requests.request("POST", url, headers=headers, data=payload, files=files)
-
+    json_response = json.loads(response.text)
     # print(response.text)
     if response.status_code == 200:
-        print("file uploaded successfully")
-        json_response = json.loads(response.text)
+        # print("file uploaded successfully")
         return json_response["data_id"]
+    elif response.status_code == 400:
+        sys.exit(json_response["error"]["messages"])
     else:
-        sys.exit("ERROR: " + str(response.status_code) + " STATUS")
-    # get the data_id
+        sys.exit("Status code:" + str(response.status_code))
 
 
 # repeatedly pull result until percentage is 100
@@ -68,7 +73,12 @@ def pull_result(data_id):
     }
     response = requests.request("GET", url, headers=headers)
     json_response = json.loads(response.text)
-    return json_response
+    if response.status_code == 200:
+        return json_response
+    elif response.status_code == 404:
+        sys.exit(json_response["error"]["messages"])
+    else:
+        sys.exit("Status code:" + str(response.status_code))
 
 
 # send in the json_response
@@ -76,7 +86,7 @@ def check_results(data_id):
     json_response = pull_result(data_id)
     # maybe have to change 100 into integer
     while json_response["scan_results"]["progress_percentage"] != 100:
-        print(json_response["scan_results"]["progress_percentage"])
+        # print(json_response["scan_results"]["progress_percentage"])
         json_response = pull_result(data_id)
     # once it is 100, then we can call display results
     display_result(json_response)
@@ -85,8 +95,8 @@ def check_results(data_id):
 def display_result(response):
     print("filename: " + response["file_info"]["display_name"])
     print("overall_status: Clean")
-    print_engines("AhnLab", response)
-    print_engines("Cyren", response)
+    for engine in response["scan_results"]["scan_details"]:
+        print_engines(engine, response)
 
 
 def print_engines(engine, response):
@@ -124,6 +134,14 @@ def file_scanner(file):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        sys.exit("Command: python filescanner.py [filename_to_scan]")
-    file = sys.argv[1]
-    file_scanner(file)
+        sys.exit("run: python filescanner.py [API_KEY]")
+
+    # check if API_KEY exists
+    api_check()
+
+    user_input = input()
+    commands = user_input.split(" ")
+    if len(commands) != 2 or commands[0] != "upload_file":
+        sys.exit("input: upload_file [filename_to_scan]")
+
+    file_scanner(commands[1])

@@ -1,0 +1,39 @@
+After uploading a file with the 'callbackurl' header, the status of the webhook callback can
+be checked using this endpoint. The status can be checked up to 12 hours after the file was
+uploaded, any request sent after this time period will return not found. If calling the
+endpoint without specifying a data_id, the status for all the
+webhook callbacks in the last 12 hours will be sent back.
+
+MetaDefender Cloud enables you to leverage our threat detection and prevention platform, MetaDefender.
+For scanning files, hash lookups, and data sanitization we offer a community account exclusively for
+demo purposes and personal use. For commercial use, please consult our Licensing page, online store or
+contact our sales team to discuss which licensing model suits your needs.
+
+A free integration with MetaDefender Cloud multi-scanning technology through the REST API is allowed only for:
+
+Prototyping the integration with MetaDefender
+Integration in your solution for demo purposes if and only if:
+The integration in production will leverage a MetaDefender Core or MetaDefender Cloud commercial license
+It's used only to demonstrate the product integration and will not save any data
+Community users will be able to consume scan reports from 30+ anti-malware engines, but they are not
+allowed to use the data provided by our platform in any way. For commercial use, the engine list will be
+limited to the engines with which we have OEM (Original Equipment Manufacturer) agreements. Please consult
+the list of available engines on our Licensing page.
+
+For more information on how to use this REST API, please see our documentation below.
+
+Each API call requires a MetaDefender Cloud apikey. To obtain your community MetaDefender Cloud apikey,
+please create an OPSWAT account and log into the MetaDefender Cloud Account Information section.
+Free API keys obtained through the OPSWAT Account allow a limited number of API calls per day. To extend
+your key to allow additional usage, please visit our online store or contact OPSWAT sales.
+If you experience any issues using MetaDefender Cloud through the web interface or through the REST API,
+please log into OPSWAT Portal and submit a ticket under the "Support" section. A member of our support team
+will be happy to assist with your request.
+
+More About MetaDefender Cloud APIs
+1. Onboarding Process for MetaDefender Cloud API Users
+2. API Authentication Mechanisms
+3. Rate Limiting
+4. Throttling
+5. Endpoints
+6. V4 API
